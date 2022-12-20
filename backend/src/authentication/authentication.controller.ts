@@ -7,11 +7,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { AuthenticationService } from './authentication.service';
 import { RegisterDto } from './class/authentication.dto';
 import RequestWithUser from './class/authentication.interface';
 import { CookieAuthenticationGuard } from './cookieAuthentication.guard';
+import { JwtAuthGuard } from './jwtAuthGuard';
 import { LoginWithCredentialsGuard } from './logInWithCredentialsGuard';
 
 class LoginDto {
@@ -52,11 +53,12 @@ export class AuthenticationController {
   @UseGuards(LoginWithCredentialsGuard)
   @Post('login')
   async login(@Req() request: RequestWithUser) {
-    return request.user;
+    return this.authenticatoinService.login(request.user);
   }
 
+  @ApiBearerAuth()
   @ApiOperation({ description: 'ユーザ情報取得' })
-  @UseGuards(CookieAuthenticationGuard)
+  @UseGuards(JwtAuthGuard)
   @Get()
   async authenticate(@Req() request: RequestWithUser) {
     return request.user;
